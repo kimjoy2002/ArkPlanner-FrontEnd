@@ -25,6 +25,7 @@ export class Material {
         public id: number,
         public sortId: number,
         public name: string,
+        public langName: string,
         public rarity: number,
         public type: MaterialType,
         public iconPath: string = '',
@@ -45,12 +46,10 @@ export default function getMaterialsList(): Material[] {
     for (const key in dataMain) {
         if (dataMain[key]) {
             const dataObj = dataMain[key];
-            const material = new Material(dataObj.id, dataObj.sortId, dataObj.name, dataObj.rarity,
+            const material = new Material(dataObj.id, dataObj.sortId, dataObj.name, dataObj.kr, dataObj.rarity,
                  dataObj.type as MaterialType, require('./assets/img/' + dataObj.id.toString() + '_icon.png'));
             materialsList.push(material);
         }
     }
     return materialsList;
 }
-
-

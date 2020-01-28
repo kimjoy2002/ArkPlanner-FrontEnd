@@ -8,59 +8,59 @@ div#app
                 el-card(v-for="material in materialList" v-bind:key='material.id' :class='`rarity-` + material.rarity')
                     div(slot='header' class='clearfix' style='display: flex; align-items: center;')
                         img(:src='material.iconPath')
-                        span(style='margin-left: 10px; font-size: 18px;') {{material.name}}
+                        span(style='margin-left: 10px; font-size: 18px;') {{material.langName}}
                     div
-                        div(style="display: inline-block;") 需要#[el-input-number(v-model='material.required' :min='0' size='small') ]
-                        div(style="display: inline-block;") 已有#[el-input-number(v-model='material.owned'  :min='0' size='small')]
+                        div(style="display: inline-block;") 필요#[el-input-number(v-model='material.required' :min='0' size='small') ]
+                        div(style="display: inline-block;") 소지#[el-input-number(v-model='material.owned'  :min='0' size='small')]
 
         el-footer
             arkplanner-footer
         el-button(type="primary" icon="el-icon-data-analysis" circle id="analyze" @click='analyze')
         el-button(icon="el-icon-more" circle id="importOrExport" @click='toggleImportOrExport')
 
-        el-dialog(:title='`预计需要体力: ` + cost' :visible.sync="resultVisible" width="80%")
+        el-dialog(:title='`예상 능지: ` + cost' :visible.sync="resultVisible" width="80%")
             el-tabs(v-model="activeResult")
-                el-tab-pane(label='关卡列表' name='stagesList')
-                    p 共计获得 #[b {{gold}} 龙门币] 以及作战录像 #[b {{exp}} EXP]
-                    p(v-for='_stage in stages') #[b {{_stage.stage}}]: {{_stage.count}} 次，获得 
-                        span(v-for='key in Object.keys(_stage.items)') #[b {{key}}]({{_stage.items[key]}}) 
-                el-tab-pane(label='合成列表' name='syntheses')
-                    p(v-if="extraOutc") 由于考虑了合成副产物的产出，可能会出现提示合成你不需要的材料的情况，在需求量较小的时候建议关闭合成副产物。
-                    p 合成共计消耗#[b 龙门币 {{gcost}}]
+                el-tab-pane(label='스테이지목록' name='stagesList')
+                    p 얻는 용문폐 #[b {{gold}} 용문폐] 얻는 경험치 #[b {{exp}} EXP]
+                    p(v-for='_stage in stages') #[b {{_stage.stage}}]: {{_stage.count}} 회，얻는 아이템 
+                        span(v-for='key in Object.keys(_stage.transferItems)') #[b {{key}}]({{_stage.transferItems[key]}}) 
+                el-tab-pane(label='합성목록' name='syntheses')
+                    p(v-if="extraOutc") 합성 부산물의 출력을 고려하기 때문에 필요하지 않은 물질의 합성을이 되는 상황이 있을 수 있으며, 수요가 적을 때는 합성 부산물을 끄는 것이 좋습니다.
+                    p 총 합성 소비#[b 용문폐 {{gcost}}]
                     p(v-for="synthesis in syntheses") #[b {{synthesis.target}}]({{synthesis.count}}): 
                         span(v-for="key in Object.keys(synthesis.materials)") #[b {{key}}]({{synthesis.materials[key]}}) 
-                el-tab-pane(label='素材价值' name='itmvalues')
-                    p(v-for='group in itmvalues') 素材等级#[b {{group.level}}]: <br/>
+                el-tab-pane(label='자재 가치' name='itmvalues')
+                    p(v-for='group in itmvalues') 재료 등급#[b {{group.level}}]: <br/>
                         span(v-for='item in group.items') {{item.name}}(#[b {{item.value}}]) 
         
-        el-dialog(title='杂项/设置' :visible.sync="ioVisible" width="80%")
+        el-dialog(title='기타/설정' :visible.sync="ioVisible" width="80%")
             el-tabs(v-model="activeSetting")
-                el-tab-pane(label='导入数据' name='importJSON')               
+                el-tab-pane(label='데이터 가져오기' name='importJSON')               
                     div(style="margin: 10px") 
-                        el-input(v-model='materialJSON' type='textarea' :rows='5' placeholder='[{"name":"双极纳米片","need":4,"have":0},{"name":"D32钢","need":4,"have":0}...]')
+                        el-input(v-model='materialJSON' type='textarea' :rows='5' placeholder='[{"name":"바이폴라 나노플레이크 칩","need":4,"have":0},{"name":"D32강","need":4,"have":0}...]')
                     div(style="margin: 10px") 
-                        el-button(type="primary" plain @click='applyJSON') 导入
-                el-tab-pane(label='导出数据' name='exportJSON')
+                        el-button(type="primary" plain @click='applyJSON') 가져오기
+                el-tab-pane(label='내보내기' name='exportJSON')
                     div(style="margin: 10px")
                         el-input(v-model='materialExportJSON' type='textarea' :rows='5' readonly=true)
-                el-tab-pane(label='参数设置' name='planningParameters')
-                    p 材料排列顺序
+                el-tab-pane(label='파라미터 설정' name='planningParameters')
+                    p 재료순서
                         span(style="margin: 8px")
                         el-radio-group(v-model='sortingOrder')
-                            el-radio-button(label='byType') 按类型
-                            el-radio-button(label='byRarity') 按稀有度
-                    p 计算合成副产物
+                            el-radio-button(label='byType') 유형별
+                            el-radio-button(label='byRarity') 희귀도별
+                    p 합성부산물계산
                         span(style="margin: 8px")
                         el-switch(v-model='extraOutc' active-color='#13ce66' inactive-color='#e0e0e0')
-                    p 大量需求经验
+                    p 경험치 요구량
                         span(style="margin: 8px")
                         el-switch(v-model='expDemand' active-color='#13ce66' inactive-color='#e0e0e0')
-                    p 大量需求龙门币
+                    p 용문폐 요구량
                         span(style="margin: 8px")
                         el-switch(v-model='goldDemand' active-color='#13ce66' inactive-color='#e0e0e0')
-                el-tab-pane(label='导入预设' name='importPreset')
+                el-tab-pane(label='사전설정 가져오기' name='importPreset')
                     div(style="margin: 10px") 
-                        el-button(type="primary" plain @click='importFullRequirement') 导入全需求
+                        el-button(type="primary" plain @click='importFullRequirement') 모든 요구사항 가져오기
 
 
 
@@ -151,6 +151,20 @@ export default class App extends Vue {
             this.gcost = result.gcost;
             this.exp = result.exp;
             this.stages = result.stages;
+            const newArray: any = [];
+
+            for (let i = 0 ; i < this.materialListSource.length ; i++) {
+                const test = this.materialListSource[i];
+                newArray[test.name] = test.langName;
+            }
+
+            for (let i = 0 ; i < result.stages.length ; i++) {
+                const item = result.stages[i].items;
+                result.stages[i].transferItems = new Object();
+                Object.keys(item).map(function( key ) {
+                    result.stages[i].transferItems[newArray[key]] = item[key];
+                });
+            }
             this.syntheses = result.syntheses;
             this.itmvalues = result.values;
             this.resultVisible = true;
@@ -167,9 +181,9 @@ export default class App extends Vue {
             ownedMap[materialImport.name] = materialImport.have;
         }
         for (const material of this.materialList) {
-            if (material.name in ownedMap) {
-                material.owned = ownedMap[material.name];
-                material.required = requiredMap[material.name];
+            if (material.langName in ownedMap) {
+                material.owned = ownedMap[material.langName];
+                material.required = requiredMap[material.langName];
             }
         }
         this.ioVisible = false;
@@ -184,9 +198,9 @@ export default class App extends Vue {
             ownedMap[materialImport.name] = materialImport.have;
         }
         for (const material of this.materialList) {
-            if (material.name in ownedMap) {
-                material.owned = ownedMap[material.name];
-                material.required = requiredMap[material.name];
+            if (material.langName in ownedMap) {
+                material.owned = ownedMap[material.langName];
+                material.required = requiredMap[material.langName];
             }
         }
 
@@ -197,7 +211,7 @@ export default class App extends Vue {
         for (const material of this.materialList) {
             if (material.required > 0 || material.owned > 0) {
                 const materialExport: { [key: string]: any; }
-                 = {name: material.name, need: material.required, have: material.owned};
+                 = {name: material.langName, need: material.required, have: material.owned};
                 materialExportList.push(materialExport);
             }
         }
